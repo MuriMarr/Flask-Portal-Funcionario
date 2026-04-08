@@ -33,25 +33,6 @@ body {
   font-family: "Inter", "Segoe UI", system-ui, -apple-system, "Roboto", "Helvetica", "Arial", sans-serif;
 }
 
-body.login-bg {
-  position: relative;
-  overflow: hidden;
-}
-
-body.login-bg::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background-image: url('{{url_for("static", filename="login_background.jpg") }}') center/cover no-repeat;
-  opacity: 0;
-  transition: opacity 1.2s ease, filter 1.0s ease; 
-}
-
-body.login-bg.loaded::before {
-  opacity: 1;
-  filter: blur(0px) brightness(1);
-}
-
 h2{
   font-family: "Futura";
   font-style: normal;
