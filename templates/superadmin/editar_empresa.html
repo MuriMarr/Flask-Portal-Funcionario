@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Editar Empresa</h2>
+    
+    <form method="POST" action="{{ url_for('superadmin.editar_empresa', id=empresa.id) }}">
+        <div class="mb-3">
+            <label for="nome" class="form-label">Razão Social</label>
+            <input type="text" name="nome" id="nome" class="form-control" value="{{ empresa.razao_social }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="nome_fantasia" class="form-label">Nome Fantasia</label>
+            <input type="text" name="nome_fantasia" id="nome_fantasia" class="form-control" value="{{ empresa.nome_fantasia }}">
+        </div>
+        <div class="mb-3">
+        
+            <div class="mb-3">
+            <label for="cnpj" class="form-label">CNPJ</label>
+            <input type="text" name="cnpj" id="cnpj" class="form-control" value="{{ empresa.cnpj }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="carga_mensal" class="form-label">Carga Mensal (horas)</label>
+            <input type="number" name="carga_mensal" id="carga_mensal" class="form-control" value="{{ empresa.carga_mensal }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="inscricao_estadual" class="form-label">Inscrição Estadual</label>
+            <input type="text" name="inscricao_estadual" id="inscricao_estadual" class="form-control" value="{{ empresa.inscricao_estadual }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="endereco" class="form-label">Endereço</label>
+            <input type="text" name="endereco" id="endereco" class="form-control" value="{{ empresa.endereco }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="numero" class="form-label">Número</label>
+            <input type="text" name="numero" id="numero" class="form-control" value="{{ empresa.numero }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="bairro" class="form-label">Bairro</label>
+            <input type="text" name="bairro" id="bairro" class="form-control" value="{{ empresa.bairro }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="cidade" class="form-label">Cidade</label>
+            <input type="text" name="cidade" id="cidade" class="form-control" value="{{ empresa.cidade }}">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">UF</label>
+            <select name="uf" class="form-select" required>
+                <option value="">Selecione</option>
+                {% for estado in ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'] %}
+                <option value="{{ estado }}">{{ estado }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="cep" class="form-label">CEP</label>
+            <input type="text" name="cep" id="cep" class="form-control" value="{{ empresa.cep }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="telefone" class="form-label">Telefone</label>
+            <input type="text" name="telefone" id="telefone" class="form-control" maxlength="15" value="{{ empresa.telefone }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" name="email" id="email" class="form-control" value="{{ empresa.email }}">
+        </div>
+
+        <button type="submit" class="btn btn-success">Atualizar</button>
+        <a href="{{ url_for('superadmin.dashboard') }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+<script>
+    document.getElementById("cnpj")?.addEventListener("input", function () {
+        aplicarMascaraCNPJ(this);
+    });
+
+    document.getElementById("telefone")?.addEventListener("input", function () {
+        aplicarMascaraTelefone(this);
+    });
+
+    document.getElementById("cep")?.addEventListener("input", function () {
+        let valor = this.value.replace(/\D/g, "");
+        valor = valor.replace(/^(\d{5})(\d)/, "$1-$2");
+        this.value = valor.substring(0, 9);
+    });
+</script>
+{% endblock %}

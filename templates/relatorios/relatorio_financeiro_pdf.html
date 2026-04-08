@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório Financeiro</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            margin: 40px;
+            color: #333;
+        }
+        h1, h2, h3 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        h1 {
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 6px 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .total {
+            font-weight: bold;
+            background-color: #e7f3ff;
+        }
+        .right {
+            text-align: right;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            text-align: right;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Relatório Financeiro Mensal</h1>
+    <h3>Referente a {{ mes }}/{{ ano }}</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Funcionário</th>
+                <th>Cargo</th>
+                <th>Salário Base (R$)</th>
+                <th>Horas Trabalhadas</th>
+                <th>Horas Extras</th>
+                <th>Valor Extras (R$)</th>
+                <th>Bruto (R$)</th>
+                <th>Descontos (R$)</th>
+                <th>Líquido (R$)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set total_bruto = 0 %}
+            {% set total_liquido = 0 %}
+            {% set total_descontos = 0 %}
+
+            {% for f in dados %}
+            <tr>
+                <td>{{ f.funcionario }}</td>
+                <td>{{ f.cargo }}</td>
+                <td class="right">{{ "{:,.2f}".format(f.salario_base) }}</td>
+                <td>{{ f.horas_trabalhadas }}</td>
+                <td>{{ f.horas_extras }}</td>
+                <td class="right">{{ "{:,.2f}".format(f.valor_extras) }}</td>
+                <td class="right">{{ "{:,.2f}".format(f.bruto) }}</td>
+                <td class="right">{{ "{:,.2f}".format(f.descontos) }}</td>
+                <td class="right">{{ "{:,.2f}".format(f.liquido) }}</td>
+            </tr>
+
+            {% set total_bruto = total_bruto + f.bruto %}
+            {% set total_liquido = total_liquido + f.liquido %}
+            {% set total_descontos = total_descontos + f.descontos %}
+            {% endfor %}
+
+            <tr class="total">
+                <td colspan="6" class="right"><strong>Totais</strong></td>
+                <td class="right"><strong>R$ {{ "{:,.2f}".format(total_bruto) }}</strong></td>
+                <td class="right"><strong>R$ {{ "{:,.2f}".format(total_descontos) }}</strong></td>
+                <td class="right"><strong>R$ {{ "{:,.2f}".format(total_liquido) }}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p>Relatório gerado automaticamente pelo sistema em {{ datetime.now().strftime('%d/%m/%Y %H:%M') }}</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}Cadastro Primeira Empresa{% endblock %}
+{% block content %}
+
+<div class="container mt-5 mb-5">
+    <div class="card shadow-lg p-4">
+        <h1 class="text-center mb-4"> Cadastro da Empresa</h1>
+        <p class="text-center text-muted">Por favor, preencha os dados da empresa logo abaixo para utilizar o sistema.</p>
+        <hr>
+
+        <form method="POST" action="{{ url_for('empresas.nova_empresa_public') }}">
+            <div class="row mb-3">
+                <div class="col md-8">
+                    <label class="form-label">Razão Social *</label>
+                    <input type="text" class="form-control" name="razao_social" required>
+                </div>
+                <div class="col md-4">
+                    <label class="form-label">Nome Fantasia</label>
+                    <input type="text" class="form-control" name="nome_fantasia">
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col md-6">
+                    <label class="form-label">CNPJ *</label>
+                    <input type="text" class="form-control" id="cnpj" name="cnpj" maxlength="18" required>
+                </div>
+                <div class="col md-6">
+                    <label class="form-label">Inscrição Estadual</label>
+                    <input type="text" class="form-control" name="inscricao_estadual">
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col md-8">
+                    <label class="form-label">Endereço *</label>
+                    <input type="text" class="form-control" name="endereco" required>
+                </div>
+                <div class="col md-2">
+                    <label class="form-label">Número *</label>
+                    <input type="text" class="form-control" name="numero" required>
+                </div>
+                <div class="col md-2">
+                    <label class="form-label">CEP *</label>
+                    <input type="text" class="form-control" id="cep" name="cep" maxlength="9" required>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col md-5">
+                    <label class="form-label">Bairro *</label>
+                    <input type="text" class="form-control" name="bairro" required>
+                </div>
+                <div class="col md-5">
+                    <label class="form-label">Cidade *</label>
+                    <input type="text" class="form-control" name="cidade" required>
+                </div>
+                <div class="col md-2">
+                    <label class="form-label">UF *</label>
+                    <select name="uf" class="form-select" required>
+                        <option value="">--</option>
+                        {% for estado in ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'] %}
+                        <option value="{{ estado }}">{{ estado }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col md-6">
+                    <label class="form-label">Telefone *</label>
+                    <input type="text" class="form-control" id="telefone" name="telefone" maxlength="15" required>
+                </div>
+                <div class="col md-6">
+                    <label class="form-label">E-mail *</label>
+                    <input type="email" class="form-control" name="email" required>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary btn-lg">Cadastrar Empresa</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById("cnpj")?.addEventListener("input", function() {
+        let v = this.value.replace(/\D/g, "");
+        v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+        v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+        v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
+        v = v.replace(/(\d{4})(\d)/, "$1-$2");
+        this.value = v.substring(0, 18);
+    });
+
+    document.getElementById("telefone")?.addEventListener("input", function() {
+        let v = this.value.replace(/\D/g, "");
+        v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+        v = v.replace(/(\d{5})(\d)/, "$1-$2");
+        this.value = v.substring(0, 15);
+    });
+
+    document.getElementById("cep")?.addEventListener("input", function() {
+        let v = this.value.replace(/\D/g, "");
+        v = v.replace(/^(\d{5})(\d)/, "$1-$2");
+        this.value = v.substring(0, 9);
+    });
+</script>
+
+{% endblock %}

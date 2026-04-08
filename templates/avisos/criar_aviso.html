@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Novo Aviso{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Publicar Novo Aviso</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="titulo" class="form-label">Título do Aviso</label>
+            <input type="text" class="form-control" id="titulo" name="titulo" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="conteudo" class="form-label">Conteúdo</label>
+            <textarea class="form-control" id="conteudo" name="conteudo" rows="5" required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="imagem" class="form-label">Imagem (opcional)</label>
+            <input type="file" class="form-control" id="imagem" name="imagem">
+        </div>
+
+        <div id="preview-container" class="mb-3" style="display: none;">
+            <p><strong>Pré-visualização da Imagem:</strong></p>
+            <img id="preview" src="#" alt="Pré-visualização da Imagem" class="img-fluid rounded shadow" style="max-height: 250px; object-fit: cover;">
+        </div>
+
+        <button type="submit" a href="{{ url_for('avisos.criar_aviso') }}" class="btn btn-success">Publicar Aviso</button>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+<script>
+    document.getElementById('imagem').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        const previewContainer = document.getElementById('preview-container');
+        const preview = document.getElementById('preview');
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                previewContainer.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        } else {
+            preview.src = '#';
+            previewContainer.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

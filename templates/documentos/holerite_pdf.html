@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Holerite - {{ funcionario.nome }}</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            font-size: 14px;
+        }
+        h1 { 
+            text-align: center; 
+            margin-bottom: 30px;
+        }
+        .info, .valores { 
+            margin-bottom: 20px; 
+        }
+        .info p, .valores p {
+            margin: 5px 0;
+        }
+        .total { 
+            font-weight: bold; 
+            font-size: 16px; 
+            margin-top: 20px;
+        }
+        hr {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Holerite - {{ mes }}</h1>
+
+    <div class="info">
+        {% if is_admin %}
+            <p><strong>Gerado por:</strong> {{ admin_nome }}</p>
+        {% endif %}
+        <p><strong>Nome:</strong> {{ funcionario.nome }}</p>
+        <p><strong>CPF:</strong> {{ funcionario.cpf or '-' }}</p>
+        <p><strong>Cargo:</strong> {{ funcionario.cargo }}</p>
+        <p><strong>Data de Admissão:</strong> {{ funcionario.data_admissao.strftime('%d/%m/%Y') }}</p>
+    </div>
+
+    <hr>
+
+    <div class="valores">
+        <h3>Vencimentos</h3>
+        <p><strong>Dias Trabalhados:</strong> {{ dias }}</p>
+        <p><strong>Horas Trabalhadas:</strong> {{ horas }}</p>
+        <p><strong>Salário Base:</strong> R$ {{ "%.2f"|format(salario_base) }}</p>
+        <p><strong>Valor Base:</strong> R$ {{ "%.2f"|format(valor_base) }}</p>
+        <p><strong>Horas Extras:</strong> R$ {{ "%.2f"|format(valor_extras) }}</p>
+        <p><strong>Total Bruto:</strong> R$ {{ "%.2f"|format(bruto) }}</p>
+    </div>
+    
+    <hr>
+    
+    <div class="valores">
+        <h3>Descontos</h3>
+        <p><strong>INSS:</strong> R$ {{ "%.2f"|format(desconto_inss) }}</p>
+        <p><strong>Vale Transporte:</strong> R$ {{ "%.2f"|format(desconto_vt) }}</p>
+        <p><strong>Total Líquido:</strong> <strong>R$ {{ "%.2f"|format(valor_liquido) }}</strong></p>
+    </div>
+
+    <hr>
+
+    <p><strong>Emitido em:</strong> {{ now().strftime('%d/%m/%Y %H:%M') }}</p>
+
+    <br><br><br>
+    <p><strong>Assinatura do Empregador:</strong> _____________________________</p>
+    <p><strong>Assinatura do Funcionário:</strong> _____________________________</p>
+
+</body>
+</html>

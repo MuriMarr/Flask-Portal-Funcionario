@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Minhas Férias</h2>
+        <a href="{{ url_for('funcionarios.solicitar_ferias') }}" class="btn btn-primary mb-3">Solicitar Férias</a>
+    </div>
+
+    <div class="alert alert-info">
+        <strong>Saldo de Férias:</strong> {{ saldo }} dias
+    </div>
+
+    {% if historico %}
+    <table class="table table-bordered table-striped align-middle text-center">
+        <thead class="table-dark">
+            <tr>
+                <th>Período</th>
+                <th>Dias</th>
+                <th>Adiantamento 13º</th>
+                <th>Valor Bruto</th>
+                <th>INSS</th>
+                <th>IRRF</th>
+                <th>Valor Líquido</th>
+                <th>Status</th>
+                <th>Comprovante</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in historico %}
+            <tr>
+                <td>{{ f.data_inicio.strftime('%d/%m/%Y') }} - {{ f.data_fim.strftime('%d/%m/%Y') }}</td>
+                <td>{{ f.dias }}</td>
+                <td>{{ "Sim" if f.adiantamento_decimo else "Não" }}</td>
+                <td>R$ {{ "{:,.2f}".format(f.valor_bruto) }}</td>
+                <td>R$ {{ "{:,.2f}".format(f.desconto_inss) }}</td>
+                <td>R$ {{ "{:,.2f}".format(f.desconto_irrf) }}</td>
+                <td><strong>R$ {{ "{:,.2f}".format(f.valor_liquido) }}</strong></td>
+                <td>
+                    {% if f.status == "APROVADO" %}
+                        <span class="badge bg-success">Aprovado</span>
+                    {% elif f.status == "REJEITADO" %}
+                        <span class="badge bg-danger">Rejeitado</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Pendente</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if f.status == "APROVADO" %}
+                        <a href="{{ url_for('funcionarios.gerar_ferias_pdf', ferias_id=f.id) }}" class="btn btn-sm outline-primary">📄 PDF</a>
+                    {% else %}
+                        <span class="text-muted">-</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="alert alert-info text-center mt-3">
+            Nenhuma solicitação de férias encontrada.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

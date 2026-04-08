@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Ativação - {{ empresa.razao_social }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <div class="card p-4 glass-box shadow-aaa">
+    <h3>Ativação da Empresa</h3>
+    <p class="text-muted">Empresa: <strong>{{ empresa.razao_social }}</strong> — CNPJ: {{ empresa.cnpj }}</p>
+
+    <div class="alert alert-info">
+      Para finalizar, crie o primeiro Superadministrador que terá acesso completo ao painel.
+    </div>
+
+    <form method="POST">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Nome completo</label>
+          <input type="text" name="nome" class="form-control" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">E-mail</label>
+          <input type="email" name="email" class="form-control" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Telefone</label>
+          <input type="text" name="telefone" class="form-control">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Senha</label>
+          <input type="password" name="senha" class="form-control" required>
+        </div>
+      </div>
+
+      <div class="mt-4 text-end">
+        <button type="submit" class="btn btn-success">Criar Superadmin e acessar</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

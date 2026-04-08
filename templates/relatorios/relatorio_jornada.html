@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Relatório de Jornada{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Relatório de Jornada Mensal</h2>
+
+    <form method="get" class="row g-3 my-3">
+        <div class="col-auto">
+            <label for="mes" class="form-label">Selecionar Mês:</label>
+            <input type="month" id="mes" name="mes" value="{{ mes }}" class="form-control">
+        </div>
+        <div class="col-auto align-self-end">
+            <button type="submit" class="btn btn-primary mb-3">Filtrar</button>
+            <a href="{{ url_for('relatorios.relatorio_jornada_pdf', mes=mes) }}" class="btn btn-secondary mb-3">Gerar PDF</a>
+        </div>
+    </form>
+
+    {% if relatorio %}
+    <table class="table table-bordered table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Funcionário</th>
+                <th>Horas Trabalhadas</th>
+                <th>Horas Extras</th>
+                <th>Déficit</th>
+                <th>Banco de Horas</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in relatorio %}
+            <tr>
+                <td>{{ r.funcionario }}</td>
+                <td>{{ r.total_trabalhado|format_timedelta }}</td>
+                <td>{{ r.total_extras|format_timedelta }}</td>
+                <td>{{ r.total_deficit|format_timedelta }}</td>
+                <td>{{ r.banco|format_timedelta }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-info mt-3">Nenhum dado disponível para o mês selecionado.</div>
+    {% endif %}
+</div>
+{% endblock %}

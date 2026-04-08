@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Férias - {{ mes }}/{{ ano }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            margin: 20px;
+            color: #333;
+        }
+        h1, h2, h3 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        h1 {
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 6px 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .total {
+            font-weight: bold;
+            background-color: #f7f7f7
+        }
+        .right {
+            text-align: right;
+        }
+        .footer {
+            text-align: right;
+            margin-top: 30px;
+            font-size: 12px;
+            color: #666;
+        }
+        .status-pendente {
+            color:coral;
+            font-weight: bold;
+        }
+        .status-aprovado {
+            color:green;
+            font-weight: bold;
+        }
+        .status-rejeitado {
+            color:red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Relatório de Férias</h1>
+    <h3>Referente a {{ mes }}/{{ ano }}</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Funcionário</th>
+                <th>Cargo</th>
+                <th>Período de Férias</th>
+                <th>Dias</th>
+                <th>Adiantamento 13º</th>
+                <th>Status</th>
+                <th>Valor Bruto (R$)</th>
+                <th>Descontos (R$)</th>
+                <th>Valor Líquido (R$)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set total_bruto = 0 %}
+            {% set total_liquido = 0 %}
+            {% set total_descontos = 0 %}
+            {% set total_dias = 0 %}
+
+            {% for f in dados %}
+            <tr>
+                <td>{{ f.funcionario }}</td>
+                <td>{{ f.cargo }}</td>
+                <td>{{ f.inicio.strftime('%d/%m/%Y') }} a {{ f.fim.strftime('%d/%m/%Y') }}</td>
+                <td>{{ f.dias }}</td>
+                <td>{{ 'Sim' if f.adiantamento_13 else 'Não' }}</td>
+                <td>
+                    {% if f.status == "APROVADO" %}
+                        <span class="status-aprovado">{{ f.status }}</span>
+                    {% elif f.status == "PENDENTE" %}
+                        <span class="status-pendente">{{ f.status }}</span>
+                    {% else %}
+                        <span class="status-rejeitado">{{ f.status }}</span>
+                    {% endif %}
+                </td>
+                <td class="right">{{ "{:,.2f}".format(f.valor_bruto) }}</td>
+                <td class="right">{{ "{:,.2f}".format(f.descontos) }}</td>
+                <td class="right">{{ "{:,.2f}".format(f.valor_liquido) }}</td>
+            </tr>
+
+            {% set total_bruto = total_bruto + f.valor_bruto %}
+            {% set total_liquido = total_liquido + f.valor_liquido %}
+            {% set total_descontos = total_descontos + f.descontos %}
+            {% set total_dias = total_dias + f.dias %}
+            {% endfor %}
+
+            <tr class="total">
+                <td colspan="3"><strong>Totais</strong></td>
+                <td>{{ total_dias }}</td>
+                <td></td>
+                <td></td>
+                <td class="right">{{ "{:,.2f}".format(total_bruto) }}</td>
+                <td class="right">{{ "{:,.2f}".format(total_descontos) }}</td>
+                <td class="right">{{ "{:,.2f}".format(total_liquido) }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p>Relatório gerado automaticamente pelo sistema em {{ datetime.now().strftime('%d/%m/%Y %H:%M') }}</p>
+    </div>
+</body>
+</html>
