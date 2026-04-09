@@ -1,4 +1,8 @@
-# Adições e modificações importantes
+# Novas correções
 ---
-* Adicionei outros campos para o portal, como novas funções para o superadmin (cálculo automatizado de impostos, salário, etc.) e também adicionei um background-img na tela de login, para deixá-lo com uma aparência mais profissional. Porém, acabei perdendo parte do código devido a uma queda de energia e terei de refazer o div da imagem de fundo.
-(***SEMPRE SALVEM SEUS PROJETOS ANTES DE TUDO 🤡***)
+<p>
+  
+* Consegui corrigir o problema do background e provavelmente grande parte dos problemas que estavam acontecendo, meu VSCode não estava configurado para usar o Python em ambiente virtual e o Flask, jinja2 e etc. não estavam funcionando direito.
+Vou continuar atualizando e corrigir também o banco de dados, que está bagunçado desde que comecei a atualizar em outro desktop.
+
+</p>
