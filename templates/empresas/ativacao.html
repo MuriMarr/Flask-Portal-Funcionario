@@ -29,11 +29,24 @@
           <input type="password" name="senha" class="form-control" required>
         </div>
       </div>
+      <div class="col-md-6">
+        <label class="form-label">CPF</label>
+        <input type="text" name="cpf" id="cpf" class="form-control" maxlength="14" required>
+      </div>
 
       <div class="mt-4 text-end">
         <button type="submit" class="btn btn-success">Criar Superadmin e acessar</button>
       </div>
     </form>
   </div>
+  <script>
+    document.getElementById("cpf")?.addEventListener("input", function() {
+      let v = this.value.replace(/\D/g, "");
+      v = v.replace(/^(\d{3})(\d)/, "$1.$2");
+      v = v.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
+      v = v.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{2})$/, "$1.$2.$3-$4");
+      this.value = v.substring(0, 14);
+    });
+  </script>
 </div>
 {% endblock %}

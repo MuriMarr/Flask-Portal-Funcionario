@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
-from flask import Flask, redirect, url_for, session
 from flask_login import current_user
+from flask import Flask, redirect, url_for, session
 from config import Config
 from extensions import db, migrate, login_manager
 from models import User
