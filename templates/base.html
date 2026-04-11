@@ -25,16 +25,17 @@
         }
 
         /*Títulos com Poppins */
-        h1, h2, h3, h4, h5 {
+        h1, h2, h3, h4 {
             font-family: 'Poppins', sans-serif;
-            font-weight: 600;
+            font-weight: 500;
             letter-spacing: -.3px;
         }
 
         /*Navbar estilizada */
         .navbar {
             backdrop-filter: blur(10px);
-            background: rgba(255,255,255,0.75) !important;
+            background: rgba(116, 196, 239, 0.367) !important;
+            border-bottom: 1px solid rgba(116, 137, 251, 0.2);
         }
 
         .dropdown-menu {
@@ -50,10 +51,6 @@
         <div class="container">
             <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">Portal do Funcionário</a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
             <div class="collapse navbar-collapse" id="navMenu">
                 {% if current_user.is_authenticated %}
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
@@ -64,16 +61,10 @@
                     </li>
                     {% endif %}
 
-                    {% if current_user.tipo == 'admin' %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin.dashboard') }}">Painel Administrativo</a>
-                    </li>
-                    {% endif %}
-
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                            Conta
-                        </a>
+                        <button class="nav-link dropdown-toggle" type="button" href="#" data-bs-toggle="dropdown"></a>
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
                         <ul class="dropdown-menu dropdown-menu-end">
 
                             {% if current_user.tipo == 'funcionario' %}
@@ -124,7 +115,7 @@
     </div>
 
     <!-- Rodapé/Footer --> 
-    <footer class="bg-light text-black text-center shadow-sm py-3 fixed-bottom">
+    <footer class="bg-transparent text-black text-center shadow-sm py-3 fixed-bottom">
         <div class="container">
             <small>Portal do Funcionário - {{ now().year }}</small>
         </div>
@@ -192,6 +183,7 @@
     
     <!-- Scripts personalizados -->
     <script src="{{ url_for('static', filename='js/auto_logout.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/session_heartbeat.js') }}"></script>
     <script src="{{ url_for('static', filename='js/custom_theme.js') }}"></script>
 
     <script>

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Editar Superadmin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Editar Superadmin: {{ superadmin.nome }}</h2>
+    
+    <form method="POST" class="mt-4">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card p-4 mb-4">
+                    <h5 class="card-title mb-3">Informações Pessoais</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nome <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="nome" value="{{ superadmin.nome }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" name="email" value="{{ superadmin.email }}" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Telefone</label>
+                            <input type="text" class="form-control" name="telefone" value="{{ superadmin.telefone or '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Data de Nascimento</label>
+                            <input type="date" class="form-control" name="data_nascimento" 
+                                value="{% if superadmin.data_nascimento %}{{ superadmin.data_nascimento.strftime('%Y-%m-%d') }}{% endif %}">
+                        </div>
+                    </div>
+
+                    <hr>
+                    <h5 class="mt-3 mb-3">Alterar Senha (opcional)</h5>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Nova Senha</label>
+                        <input type="password" class="form-control" name="nova_senha" minlength="6">
+                        <small class="text-muted">Deixe em branco para não alterar a senha. Mínimo 6 caracteres.</small>
+                    </div>
+
+                    <hr>
+                    <h5 class="mt-3 mb-3">Endereço (opcional)</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label class="form-label">Rua</label>
+                            <input type="text" class="form-control" name="rua" value="{{ superadmin.rua or '' }}">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Número</label>
+                            <input type="text" class="form-control" name="numero" value="{{ superadmin.numero or '' }}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Complemento</label>
+                            <input type="text" class="form-control" name="complemento" value="{{ superadmin.complemento or '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Bairro</label>
+                            <input type="text" class="form-control" name="bairro" value="{{ superadmin.bairro or '' }}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Cidade</label>
+                            <input type="text" class="form-control" name="cidade" value="{{ superadmin.cidade or '' }}">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">UF</label>
+                            <input type="text" class="form-control" name="uf" value="{{ superadmin.uf or '' }}" maxlength="2">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success">Salvar Alterações</button>
+                    <a href="{{ url_for('superadmin.listar_ativacoes') }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-header bg-dark text-white">
+                        <strong>Informações do Sistema</strong>
+                    </div>
+                    <div class="card-body">
+                        <p>
+                            <strong>Empresa:</strong><br>
+                            {{ superadmin.empresa.razao_social if superadmin.empresa else 'N/A' }}
+                        </p>
+                        <p>
+                            <strong>Tipo:</strong><br>
+                            <span class="badge bg-info">{{ superadmin.tipo }}</span>
+                        </p>
+                        <p>
+                            <strong>Status:</strong><br>
+                            {% if superadmin.ativo %}
+                                <span class="badge bg-success">Ativo</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inativo</span>
+                            {% endif %}
+                        </p>
+                        <p>
+                            <strong>Cadastrado em:</strong><br>
+                            Data: (Sistema)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

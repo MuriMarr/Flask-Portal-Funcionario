@@ -48,6 +48,14 @@ def logout_beacon():
     session.clear()
     return ('', 204)
 
+@auth_bp.route("/refresh_session", methods=['POST'])
+@login_required
+def refresh_session():
+    """Endpoint para renovar a sessão do usuário (heartbeat)"""
+    session.permanent = True
+    session.modified = True
+    return jsonify({'status': 'ok', 'user_id': current_user.id}), 200
+
 @auth_bp.route('/registrar_funcionario', methods=['GET', 'POST'])
 def registrar_funcionario():
     if request.method == 'POST':

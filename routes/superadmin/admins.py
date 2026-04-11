@@ -21,7 +21,9 @@ def novo_admin():
         email = request.form.get("email")
         senha = request.form.get("senha")
         telefone = request.form.get("telefone")
+        cpf = request.form.get("cpf", "").strip()
         empresa_id = request.form.get("empresa_id")
+        salario_mensal = request.form.get("salario_mensal", type=float)
 
         if not nome or not email or not senha or not empresa_id:
             flash("Preencha os dados obrigatórios.", "danger")
@@ -37,6 +39,8 @@ def novo_admin():
             telefone=telefone,
             tipo="admin",
             empresa_id=empresa_id,
+            cpf=cpf,
+            salario_mensal=salario_mensal,
         )
         admin.set_senha(senha)
         db.session.add(admin)

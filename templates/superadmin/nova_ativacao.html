@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Novo Superadmin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Ativar Novo Superadmin</h2>
+    
+    <form method="POST" class="mt-4">
+        <div class="card p-4">
+            <h5 class="card-title mb-3">Dados do Superadmin</h5>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Nome <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" name="nome" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" name="email" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Senha <span class="text-danger">*</span></label>
+                    <input type="password" class="form-control" name="senha" required minlength="6">
+                    <small class="text-muted">Mínimo 6 caracteres</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Telefone</label>
+                    <input type="text" class="form-control" name="telefone">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Empresa <span class="text-danger">*</span></label>
+                    <select class="form-select" name="empresa_id" required>
+                        <option value="">-- Selecione uma empresa --</option>
+                        {% for empresa in empresas %}
+                            <option value="{{ empresa.id }}">
+                                {{ empresa.razao_social }} ({{ empresa.cnpj }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-3">
+                <strong>Nota:</strong> O superadmin terá permissão total sobre a empresa e seus funcionários.
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-success">Ativar Superadmin</button>
+                <a href="{{ url_for('superadmin.listar_ativacoes') }}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -9,8 +9,8 @@ class Config:
     SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
     UPLOAD_FOLDER = os.path.join(os.getcwd(), 'static/uploads')
 
-    SESSION_PERMANENT = False
-    PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)
-    REMEMBER_COOKIE_DURATION = timedelta(minutes=30)
+    SESSION_PERMANENT = True
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
+    REMEMBER_COOKIE_DURATION = timedelta(hours=8)
     
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)

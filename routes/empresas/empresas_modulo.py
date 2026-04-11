@@ -97,40 +97,6 @@ def deletar_empresa(empresa_id):
     flash("Empresa deletada com sucesso!", "success")
     return redirect(url_for("empresas.lista_empresas"))
 
-@empresas_bp.route("/<int:empresa_id>/ativar", methods=["GET", "POST"])
-def ativacao(empresa_id):
-    empresa: Empresa = Empresa.query.get_or_404(empresa_id)
-
-    existente = User.query.filter_by(empresa_id=empresa_id, tipo="superadmin").first()
-    if existente:
-        flash("Esta empresa já possui um superadmin ativo.", "warning")
-        return redirect(url_for("auth.login"))
-    
-    if request.method == 'POST':
-        nome = request.form.get("nome")
-        email = request.form.get("email")
-        senha = request.form.get("senha")
-        telefone = request.form.get("telefone")
-
-        superadmin = User(
-            nome=nome,
-            email=email,
-            telefone=telefone,
-            senha=generate_password_hash(senha),
-            tipo="superadmin",
-            empresa_id=empresa_id,
-            ativo=True
-        )
-        db.session.add(superadmin)
-        db.session.commit()
-
-        login_user(superadmin)
-
-        flash("Superadmin criado e logado com sucesso!", "success")
-        return redirect(url_for("superadmin.dashboard"))
-    
-    return render_template("empresas/ativacao.html", empresa=empresa)
-
 @empresas_bp.route('/nova_empresa_public', methods=['GET', 'POST'])
 def nova_empresa_public():
     if request.method == 'POST':

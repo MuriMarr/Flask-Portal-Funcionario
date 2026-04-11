@@ -114,26 +114,3 @@ def definir_admin(id):
 def listar_empresas():
     empresas = Empresa.query.all()
     return render_template("superadmin/listar_empresas.html", empresas=empresas)
-
-@superadmin_bp.route('/primeiro-cadastro', methods=['GET', 'POST'])
-def primeiro_cadastro_empresa():
-    if request.method == 'POST':
-        empresa = Empresa(
-            razao_social=request.form['razao_social'],
-            nome_fantasia=request.form.get('nome_fantasia'),
-            cnpj=request.form['cnpj'],
-            inscricao_estadual=request.form.get('inscricao_estadual'),
-            endereco=request.form['endereco'],
-            numero=request.form['numero'],
-            bairro=request.form['bairro'],
-            cidade=request.form['cidade'],
-            uf=request.form['uf'],
-            cep=request.form['cep'],
-            telefone=request.form['telefone'],
-            email=request.form['email']
-        )
-        db.session.add(empresa)
-        db.session.commit()
-        flash("Empresa cadastrada com sucesso!", "success")
-        return redirect(url_for('auth.login'))
-    return render_template('superadmin/primeiro_cadastro_empresa.html')

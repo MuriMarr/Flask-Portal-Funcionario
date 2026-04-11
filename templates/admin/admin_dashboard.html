@@ -1,5 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
+
+<style>
+    body {
+        position: relative;
+        background: url("{{ url_for('static', filename='background_dashboard.jpg') }}") no-repeat center center fixed;
+        background-size: cover;
+    }
+</style>
+
 <div class="container dashboard-container mt-3">
     <h4 class="text-center mb-4">Painel do Administrador</h4>
     <hr>
@@ -12,21 +21,21 @@
     <div id="secao-principais">
         <div class="row text-center">
             <div class="col-md-4 mb-4">
-                <div class="card bg-light p-4 shadow-sm">
+                <div class="card p-4 shadow-sm">
                     <h5>Funcionários Ativos</h5>
                     <hr>
                     <p class="display-6">{{ total_funcionarios }}</p>
                 </div>
             </div>
             <div class="col-md-4 mb-4">
-                <div class="card bg-light p-4 shadow-sm">
+                <div class="card p-4 shadow-sm">
                     <h5>Registros no Mês</h5>
                     <hr>
                     <p class="display-6">{{ total_registros }}</p>
                 </div>
             </div>
             <div class="col-md-4 mb-4">
-                <div class="card bg-light p-4 shadow-sm">
+                <div class="card p-4 shadow-sm">
                     <h5>Horas Trabalhadas</h5>
                     <hr>
                     <p class="display-6">{{ total_horas|format_timedelta }}</p>
@@ -41,7 +50,7 @@
                 {% endfor %}
             </ul>
         {% else %}
-            <p>Nenhum funcionário pendente.</p>
+            <p2>Nenhum funcionário pendente.</p2>
         {% endif %}
 
     <div id="secao-funcionarios" style="display:none;">

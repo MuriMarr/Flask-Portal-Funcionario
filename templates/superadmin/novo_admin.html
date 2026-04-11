@@ -5,31 +5,44 @@
     <form method="POST">
         <div class="mb-3">
             <label class="form-label">Nome</label>
-            <input type="text" class="form-control" name="nome" required>
+            <input type="text" class="form-control" id="nome" name="nome" required>
         </div>
         <div class="mb-3">
             <label class="form-label">Email</label>
-            <input type="email" class="form-control" name="email" required>
+            <input type="email" class="form-control" id="email" name="email" required>
         </div>
         <div class="mb-3">
             <label class="form-label">Senha</label>
-            <input type="text" class="form-control" name="senha" required>
+            <input type="password" class="form-control" name="senha" required>
         </div>
         <div class="mb-3">
             <label class="form-label">Telefone</label>
-            <input type="text" class="form-control" name="telefone">
+            <input type="text" class="form-control" name="telefone" id="telefone" maxlength="15" required>
         </div>
         <div class="mb-3">
             <label class="form-level">Empresa</label>
             <select class="form-select" name="empresa_id" required>
                 <option value="">Selecione...</option>
                 {% for empresa in empresas %}
-                <option value="{{ empresa.id }}">{{ empresa.nome }}</option>
+                <option value={{ empresa.id }}>{{ empresa.razao_social }}</option>
                 {% endfor %}
             </select>
         </div>
-        <button type="submit" class="btn btn-success">Salvar</button>
+        <div class="mb-3">
+            <label class="form-label">CPF</label>
+            <input type="text" class="form-control" name="cpf" id="cpf" maxlength="14" required>
+        </div>
+        <button type="submit" class="btn btn-success">Cadastrar</button>
         <a href="{{ url_for('superadmin.listar_admins') }}" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
+
+<script>
+    document.getElementById("telefone")?.addEventListener("input", function() {
+        let v = this.value.replace(/\D/g, "");
+        v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+        v = v.replace(/(\d{5})(\d)/, "$1-$2");
+        this.value = v.substring(0, 15);
+    });
+</script>
 {% endblock %}

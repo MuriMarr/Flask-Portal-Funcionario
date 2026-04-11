@@ -1,4 +1,4 @@
-# Adições e modificações importantes
+# NOTAS DE ATUALIZAÇÃO
 ---
-* Adicionei outros campos para o portal, como novas funções para o superadmin (cálculo automatizado de impostos, salário, etc.) e também adicionei um background-img na tela de login, para deixá-lo com uma aparência mais profissional. Porém, acabei perdendo parte do código devido a uma queda de energia e terei de refazer o div da imagem de fundo.
-(***SEMPRE SALVEM SEUS PROJETOS ANTES DE TUDO 🤡***)
+* Corrigi uma grande parte de bugs e falhas que estavam acontecendo desde o início do desenvolvimento, como o de deslogar sozinho depois de um tempo ocioso e rotas vazias ou que não existem mais.
+* Também optei por melhorar a aparência no campo de admins, usando um plano de fundo e diminuindo a opacidade do navbar/footer para destacar mais o fundo.

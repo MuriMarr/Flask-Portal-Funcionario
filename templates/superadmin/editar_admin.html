@@ -13,7 +13,7 @@
         </div>
         <div class="mb-3">
             <label class="form-label">Telefone</label>
-            <input type="text" class="form-control" name="telefone" value="{{ admin.telefone }}">
+            <input type="text" class="form-control" name="telefone" value="{{ admin.telefone }}" maxlength="15" required>
         </div>
         <div class="mb-3">
             <label class="form-label">Empresa</label>
@@ -29,4 +29,13 @@
         <a href="{{ url_for('superadmin.listar_admins') }}" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
+
+<script>
+    document.getElementById("telefone")?.addEventListener("input", function() {
+        let v = this.value.replace(/\D/g, "");
+        v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+        v = v.replace(/(\d{5})(\d)/, "$1-$2");
+        this.value = v.substring(0, 15);
+    });
+</script>
 {% endblock %}

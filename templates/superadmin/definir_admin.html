@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container mt-5">
-    <h2>Definir Admin para {{ empresa.nome }}</h2>
+    <h2>Definir Admin para {{ empresa.razao_social }}</h2>
     
     {% if funcionarios %}
     <form method="POST" action="{{ url_for('superadmin.definir_admin', id=empresa.id) }}">
