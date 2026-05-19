@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import email
 from flask import abort, render_template, url_for, redirect, flash, request
 from flask_login import current_user, login_required
 from extensions import db
@@ -99,21 +100,26 @@ def editar_funcionario(id):
     funcionario = User.query.get_or_404(id)
     if funcionario.empresa_id != current_user.empresa_id:
         abort(403)
-
     if request.method == 'POST':
-        funcionario.nome = request.form.get('nome')
-        funcionario.email = request.form.get('email')
-        funcionario.cargo = request.form.get('cargo')
-        funcionario.salario_mensal = float(request.form.get('salario_mensal'))
+        funcionario.nome = request.form.get("nome")
+        funcionario.data_nascimento = request.form.get("data_nascimento")
+        funcionario.cpf = request.form["cpf"].replace(".", "").replace("-", "")
+        funcionario.cargo = request.form.get("cargo")
+        funcionario.email = request.form.get("email")
+        funcionario.salario_mensal = request.form.get("salario_mensal", type=float)
         db.session.commit()
-        flash('Funcionário atualizado com sucesso.', 'success')
-        return redirect(url_for('admin.funcionarios'))
-        
-    outro_user = User.query.filter(User.email == funcionario.email, User.id != funcionario.id).first()
-    if outro_user:
-        flash('Este email já está sendo usado por outro funcionário.', 'warning')
 
-    return render_template('admin/editar_funcionario.html', funcionario=funcionario)
+        if not validar_cpf(funcionario.cpf):
+            flash("CPF inválido. Digite exatamente 11 números.", "danger")
+            return redirect(url_for("admin.editar_funcionario", id=funcionario.id))
+        
+        if not funcionario.nome or not funcionario.cpf or not funcionario.cargo or not funcionario.email:
+            flash("Preencha os campos obrigatórios (nome, CPF, cargo, email e senha).", "danger")
+            return redirect(url_for("admin.editar_funcionario", id=funcionario.id))
+        flash('Funcionário cadastrado com sucesso!', 'success')
+        return redirect(url_for('admin.editar_funcionario', id=id))
+    
+    return render_template('admin/editar_funcionario.html')
 
 @admin_bp.route('/funcionario/<int:id>/excluir')
 @login_required

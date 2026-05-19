@@ -76,6 +76,7 @@ def editar_empresa(empresa_id):
         empresa.razao_social = request.form.get("razao_social")
         empresa.nome_fantasia = request.form.get("nome_fantasia")
         empresa.cnpj = request.form.get("cnpj")
+        empresa.uf = request.form.get("uf")
         empresa.inscricao_estadual = request.form.get("inscricao_estadual")
         empresa.endereco = request.form.get("endereco")
         empresa.telefone = request.form.get("telefone")

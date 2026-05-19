@@ -59,10 +59,12 @@ def editar_admin(id):
     admin = User.query.get_or_404(id)
     if request.method == "POST":
         admin.nome = request.form.get("nome")
+        admin.data_nascimento = request.form.get("data_nascimento")
         admin.email = request.form.get("email")
         admin.telefone = request.form.get("telefone")
         admin.empresa_id = request.form.get("empresa_id")
         admin.rua = request.form.get("rua")
+        admin.cargo = request.form.get("cargo")
         admin.numero = request.form.get("numero")
         admin.complemento = request.form.get("complemento")
         admin.bairro = request.form.get("bairro")

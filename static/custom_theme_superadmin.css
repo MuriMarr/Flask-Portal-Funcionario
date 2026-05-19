@@ -28,6 +28,10 @@
 
 body {
   background: rgba(255, 255, 255, 0.85) 100%;
+  background-image: url(superadmin_bg_2.jpg);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
   color: #cdcdcd;
   -webkit-font-smoothing:antialiased;
   font-family: "Inter", "Segoe UI", system-ui, -apple-system, "Roboto", "Helvetica", "Arial", sans-serif;
@@ -273,7 +277,7 @@ header {
 footer {
   font-size: 14px;
   background-color: transparent !important;
-  color: var();
+  color: gray;
   width: 100%;
   box-shadow: inset;
 }

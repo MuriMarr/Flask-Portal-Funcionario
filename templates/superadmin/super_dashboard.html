@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="glass-box container text-center mt-4">
+<div class="glass-box container text-center mb-5 py-4">
     <h4>Painel do Superadmin</h4>
 
-    <div class="row mb-4">
+    <div class="row mt-4 justify-content-center">
         <div class="col-md-3 reveal">
             <div class="gradient-soft fade-in-up metric-card primary">
                 <h5>Empresas</h5>
@@ -37,7 +37,7 @@
         <div class="row">
             {% for empresa in empresas %}
             <div class="col-md-4 mt-4 reveal">
-                <div class="glass-box card company-card">
+                <div class="glass-box card company-card h-100 shadow-sm border-0 position-relative">
                     <div>
                         <h5 class="card-title">{{ empresa.razao_social }}</h5>
                         <span class="tag">{{ empresa.cnpj }}</span>
@@ -45,7 +45,7 @@
                         <p class="muted mt-2">E-mail: {{ empresa.email }}</p>
                         <p class="muted mt-2">Funcionários: {{ total_funcionarios }}</p>
                     </div>
-                    <div class="actions mt-3">
+                    <div class="actions mb-3 d-flex justify-content-center gap-2">
                         <a href="{{ url_for('superadmin.editar_empresa', id=empresa.id) }}" class="btn btn-sm btn-primary">Editar</a>
                         <form method="POST" action="{{ url_for('superadmin.excluir_empresa', id=empresa.id) }}" style="display:inline;">
                             <button type="submit" class="btn btn-sm btn-danger">Excluir</button>

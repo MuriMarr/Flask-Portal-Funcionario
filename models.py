@@ -1,3 +1,5 @@
+from sqlalchemy import Numeric
+
 from extensions import db
 from flask_login import UserMixin
 from datetime import datetime, date, timezone
@@ -52,7 +54,7 @@ class User(UserMixin, db.Model):
     uf = db.Column(db.String(2))
     
     # Dados do funcionário
-    salario_mensal = db.Column(db.Float, nullable=True)  # Salário mensal padrão
+    salario_mensal = db.Column(Numeric(10, 2), nullable=True)  # Salário mensal padrão
     data_admissao = db.Column(db.Date, default=date.today) # Data de admissão
     data_demissao = db.Column(db.Date, nullable=True)  # Data de demissão, se aplicável
     ativo = db.Column(db.Boolean, default=True)
