@@ -1,0 +1,15 @@
+.env
+.env.local
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.vscode/
+.idea/
+venv/
+env/
+static/uploads/*
+!static/uploads/.gitkeep
+*.db
+.DS_Store
+*.log

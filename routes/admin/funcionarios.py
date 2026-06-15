@@ -1,5 +1,4 @@
 from datetime import datetime, timezone
-import email
 from flask import abort, render_template, url_for, redirect, flash, request
 from flask_login import current_user, login_required
 from extensions import db
@@ -31,6 +30,10 @@ def novo_funcionario():
 
         if not validar_cpf(cpf):
             flash("CPF inválido. Digite exatamente 11 números.", "danger")
+            return redirect(url_for("admin.novo_funcionario"))
+        
+        if email and User.query.filter_by(email=email).first():
+            flash("Email já cadastrado. Use outro email.", "danger")
             return redirect(url_for("admin.novo_funcionario"))
         
         if not nome or not cpf or not cargo or not email or not senha:
@@ -116,6 +119,7 @@ def editar_funcionario(id):
         if not funcionario.nome or not funcionario.cpf or not funcionario.cargo or not funcionario.email:
             flash("Preencha os campos obrigatórios (nome, CPF, cargo, email e senha).", "danger")
             return redirect(url_for("admin.editar_funcionario", id=funcionario.id))
+        
         flash('Funcionário cadastrado com sucesso!', 'success')
         return redirect(url_for('admin.editar_funcionario', id=id))
     

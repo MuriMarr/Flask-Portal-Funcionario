@@ -1,10 +1,10 @@
 from datetime import datetime
 from flask import render_template, request, make_response, url_for, redirect, flash
+from flask_weasyprint import HTML, render_pdf
 from flask_login import login_required
 from extensions import db
 from models import User, Ferias
 from utils import calcular_pagamento_ferias, admin_required
-import pdfkit
 from . import admin_bp
 
 # Módulo férias
@@ -21,7 +21,7 @@ def ferias_funcionario(usuario_id):
 
     return render_template("admin/ferias_admin.html", funcionario=funcionario, ferias_list=ferias_list, saldo=saldo)
 
-@admin_bp.route("ferias/<int:usuario_id>/editar/<int:ferias_id>", methods=["GET", "POST"])
+@admin_bp.route("/ferias/<int:usuario_id>/editar/<int:ferias_id>", methods=["GET", "POST"])
 @login_required
 @admin_required
 def editar_ferias(usuario_id, ferias_id):
@@ -93,33 +93,31 @@ def aprovar_ferias(usuario_id, ferias_id):
     dias_ferias = (ferias.data_fim - ferias.data_inicio).days + 1
     ferias_calc = calcular_pagamento_ferias(funcionario, dias_ferias, ferias.adiantamento_decimo)
 
-    rendered = render_template(
-        "ferias_pdf.html",
-        funcionario=funcionario,
-        ferias=ferias,
-        ferias_calc=ferias_calc,
-        dias_ferias=dias_ferias,
-        total_descontos=round(
-            ferias_calc["desconto_inss"]
-            + ferias_calc["desconto_irrf"]
-            + ferias_calc["desconto_vt"],
-            2,
-        ),
-    )
+    @admin_bp.route("/ferias/<int:usuario_id>/<int:ferias_id>/pdf")
+    def gerar_pdf_ferias(usuario_id, ferias_id):
+        ferias = Ferias.query.get_or_404(ferias_id)
+        funcionario = User.query.get_or_404(usuario_id)
 
-    config = pdfkit.configuration(
-        wkhtmltopdf=r"C:/Arquivos de Programas/wkhtmltopdf/bin/wkhtmltopdf.exe"
-    )
-    pdf = pdfkit.from_string(rendered, False, configuration=config)
+        dias_ferias = (ferias.data_fim - ferias.data_inicio).days + 1
+        ferias_calc = calcular_pagamento_ferias(funcionario, dias_ferias, ferias.adiantamento_decimo)
 
-    response = make_response(pdf)
-    response.headers["Content-Type"] = "application/pdf"
-    response.headers[
-        "Content-Disposition"
-    ] = f'inline; filename="ferias_{funcionario.nome}_{ferias.data_inicio.strftime("%Y-%m-%d")}.pdf"'
-
-    flash("Férias aprovadas e recibo gerado com sucesso!!", "success")
-    return response
+        rendered = render_template(
+            "ferias_pdf.html",
+            funcionario=funcionario,
+            ferias=ferias,
+            ferias_calc=ferias_calc,
+            dias_ferias=dias_ferias,
+            total_descontos=round(
+                ferias_calc["desconto_inss"]
+                + ferias_calc["desconto_irrf"]
+                + ferias_calc["desconto_vt"],
+                2,
+            ),
+        )
+        return render_pdf(HTML(string=rendered), download_filename=f"ferias_{funcionario.nome}_{ferias.id}.pdf")
+    
+    flash("Solicitação de férias aprovada.", "success")
+    return redirect(url_for("admin.ferias_funcionario", usuario_id=usuario_id))
 
 @admin_bp.route('/ferias/<int:usuario_id>/nova', methods=["GET", "POST"])
 @login_required

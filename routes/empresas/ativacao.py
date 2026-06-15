@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash
 from models import Empresa, User, Aviso
 from extensions import db
-from . import empresas_bp
+from routes.empresas import empresas_bp
 
 @empresas_bp.route("/<int:empresa_id>/ativar", methods=["GET", "POST"])
 def ativacao(empresa_id):

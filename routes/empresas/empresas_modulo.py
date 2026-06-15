@@ -25,8 +25,8 @@ def nova_empresa():
         endereco = request.form.get("endereco")
         telefone = request.form.get("telefone")
         email = request.form.get("email")
-        carga_mensal = int(request.form.get("carga_mensal", 220))
-
+        carga_mensal = request.form.get("carga_mensal", 220)
+                
         empresa = Empresa(razao_social=razao_social, nome_fantasia=nome_fantasia, cnpj=cnpj, carga_mensal=carga_mensal, inscricao_estadual=inscricao_estadual, endereco=endereco, telefone=telefone, email=email)
         db.session.add(empresa)
         db.session.commit()
@@ -81,7 +81,7 @@ def editar_empresa(empresa_id):
         empresa.endereco = request.form.get("endereco")
         empresa.telefone = request.form.get("telefone")
         empresa.email = request.form.get("email")
-        empresa.carga_mensal = int(request.form.get("carga_mensal", 220))
+        empresa.carga_mensal = request.form.get("carga_mensal", 220)
 
         db.session.commit()
         flash("Empresa atualizada com sucesso!", "success")

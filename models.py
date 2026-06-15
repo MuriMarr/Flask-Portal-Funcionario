@@ -27,8 +27,8 @@ class Empresa(db.Model):
 
     admin_id = db.Column(db.Integer, db.ForeignKey("usuarios.id", name="fk_empresa_admin", use_alter=True), nullable=True)
     
-    admin = db.relationship("User", foreign_keys=[admin_id], backref="empresa_administradas")
-    users = db.relationship("User", backref="empresa", lazy=True, foreign_keys=lambda: [User.empresa_id])
+    admin = db.relationship("User", foreign_keys=[admin_id], backref="empresas_administradas")
+    users = db.relationship("User", backref="empresa_trabalho", lazy=True, foreign_keys=lambda: [User.empresa_id])
 
 # Modelo de usuário
 class User(UserMixin, db.Model):
@@ -55,7 +55,7 @@ class User(UserMixin, db.Model):
     
     # Dados do funcionário
     salario_mensal = db.Column(Numeric(10, 2), nullable=True)  # Salário mensal padrão
-    data_admissao = db.Column(db.Date, default=date.today) # Data de admissão
+    data_admissao = db.Column(db.Date, default=lambda: date.today()) # Data de admissão
     data_demissao = db.Column(db.Date, nullable=True)  # Data de demissão, se aplicável
     ativo = db.Column(db.Boolean, default=True)
     

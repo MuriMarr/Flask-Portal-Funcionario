@@ -17,6 +17,7 @@ def superadmin_required(f):
     return funcao_decorada
 
 def admin_required(func):
+    @wraps(func)
     def wrapper(*args, **kwargs):
         if not current_user.is_authenticated or current_user.tipo not in ['admin', 'superadmin']:
             abort(403)
@@ -30,8 +31,8 @@ def month_range(ano: int, mes: int):
     return primeiro, ultimo
 
 # Ações de log
-def log_action(usuario, acao):
-    novo_log = Log(usuario_id=usuario.id, acao=acao)
+def log_action(user_id, acao):
+    novo_log = Log(usuario=user_id, acao=acao)
     db.session.add(novo_log)
     db.session.commit()
 
@@ -47,6 +48,43 @@ def to_time(d, h):
         h_time = h
     return datetime.combine(d if isinstance(d, date) else date.today(), h_time)
 
+
+# Funções de validação e formatação
+def validar_cnpj(cnpj: str) -> bool:
+    return bool(re.fullmatch(r"\d{14}", cnpj))
+
+def validar_cpf(cpf: str) -> bool:
+    return bool(re.fullmatch(r"\d{11}", cpf))
+
+def format_timedelta(value):
+    sign = ""
+    
+    if isinstance(value, timedelta):
+        total_seconds = int(value.total_seconds())
+    else:
+        if value is None:
+            return "00h00"
+        try:
+            val = float(value)
+        
+        except (TypeError, ValueError):
+            return str(value)
+    
+        if val < 0:
+            sign = "-"
+            val = abs(val)
+
+        total_seconds = int(round(val * 3600))
+    if total_seconds < 0:
+        sign = "-"
+        total_seconds = abs(total_seconds)
+
+    horas = total_seconds // 3600
+    minutos = (total_seconds % 3600) // 60
+    
+    return f"{sign}{(horas):01d}h{int(minutos):02d}min"
+
+# Cálculos trabalhistas
 def calcular_trct(funcionario, data_demissao):
     salario_base = funcionario.salario_mensal or 0
     admissao = funcionario.data_admissao
@@ -131,41 +169,7 @@ def calcular_trct(funcionario, data_demissao):
         'desconto_vt': desconto_vt,
         'total_liquido': total_liquido
     }
-
-def validar_cnpj(cnpj: str) -> bool:
-    return bool(re.fullmatch(r"\d{14}", cnpj))
-
-def validar_cpf(cpf: str) -> bool:
-    return bool(re.fullmatch(r"\d{11}", cpf))
-
-def format_timedelta(value):
-    sign = ""
     
-    if isinstance(value, timedelta):
-        total_seconds = int(value.total_seconds())
-    else:
-        if value is None:
-            return "00h00"
-        try:
-            val = float(value)
-        
-        except (TypeError, ValueError):
-            return str(value)
-    
-        if val < 0:
-            sign = "-"
-            val = abs(val)
-
-        total_seconds = int(round(val * 3600))
-    if total_seconds < 0:
-        sign = "-"
-        total_seconds = abs(total_seconds)
-
-    horas = total_seconds // 3600
-    minutos = (total_seconds % 3600) // 60
-    
-    return f"{sign}{(horas):01d}h{int(minutos):02d}min"
-
 def calcular_saldo_ferias(funcionario, hoje=None):
     hoje = hoje or date.today()
     admissao = funcionario.data_admissao
@@ -233,41 +237,45 @@ def calcular_pagamento_ferias(funcionario, dias=30, adiantamento_decimo=False):
         "adiantamento_13": adiantamento_decimo
     }
 
-def calcular_horas_ponto(ponto, carga=timedelta(hours=8), limite_extras=2):
-    marcacoes = sorted(
-        ponto.marcacoes,
-        key=lambda m: m.hora)
-    total_trabalhado = timedelta()
-
-    pares = {
-        "entrada": "saida_almoco",
-        "retorno_almoco": "saida_final",
-        "extra_inicio": "extra_fim"
-    }
-
-    tipos = {m.tipo: m.hora for m in marcacoes}
-
-    for inicio, fim in pares.items():
-        if inicio in tipos and fim in tipos:
-            h1 = datetime.combine(ponto.data, tipos[inicio])
-            h2 = datetime.combine(ponto.data, tipos[fim])
-            total_trabalhado += (h2 - h1)
-
-    saldo = total_trabalhado - carga
-
-    limite = timedelta(hours=limite_extras)
+def calcular_horas_ponto(ponto, carga=None):
+    from models import Marcacao
     
-    extras = saldo if saldo > timedelta() else timedelta()
-    if extras > limite:
-        extras = limite
+    if carga is None:
+        carga = timedelta(hours=8)
     
-    deficit = abs(saldo) if saldo < timedelta() else timedelta()
-
+    marcacoes = Marcacao.query.filter_by(ponto_id=ponto.id)\
+        .order_by(Marcacao.hora).all()
+    
+    if len(marcacoes) < 2:
+        return {
+            "total_trabalhado": timedelta(),
+            "extras": timedelta(),
+            "deficit": carga
+        }
+    
+    entrada = to_time(ponto.data, marcacoes[0].hora)
+    saida = to_time(ponto.data, marcacoes[-1].hora)
+    
+    pausa_almoco = timedelta()
+    if len(marcacoes) > 2:
+        saida_almoco = to_time(ponto.data, marcacoes[1].hora)
+        retorno_almoco = to_time(ponto.data, marcacoes[2].hora)
+        pausa_almoco = retorno_almoco - saida_almoco
+    
+    total_trabalhado = saida - entrada - pausa_almoco
+    
+    if total_trabalhado.total_seconds() < 0:
+        total_trabalhado = timedelta()
+    
+    if total_trabalhado > carga:
+        extras = total_trabalhado - carga
+        deficit = timedelta()
+    else:
+        extras = timedelta()
+        deficit = carga - total_trabalhado
+    
     return {
         "total_trabalhado": total_trabalhado,
-        "carga": carga,
-        "saldo": saldo,
         "extras": extras,
-        "deficit": deficit,
-        "limite_extras": limite
+        "deficit": deficit
     }

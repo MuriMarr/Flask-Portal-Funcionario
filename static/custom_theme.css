@@ -33,6 +33,13 @@ body {
   font-family: "Inter", "Segoe UI", system-ui, -apple-system, "Roboto", "Helvetica", "Arial", sans-serif;
 }
 
+h1{
+  font-family: "Futura";
+  font-style: normal;
+  color: var(--accent);
+  text-shadow: black;
+}
+
 h2{
   font-family: "Futura";
   font-style: normal;

@@ -4,7 +4,8 @@ from flask import render_template, make_response
 from models import User, Ponto, Marcacao, Ferias
 from flask_login import login_required, current_user
 from utils import calcular_trct, calcular_pagamento_ferias
-from routes import admin_bp, funcionarios_bp
+from routes.admin import admin_bp
+from routes.funcionarios import funcionarios_bp
 from routes.common.pdf_utils import gerar_pdf
 
 # Modelos de documentos, DP e RH
@@ -27,7 +28,7 @@ def gerar_ferias_pdf_admin(usuario_id, ferias_id):
 
     ferias_calc = calcular_pagamento_ferias(
         funcionario=funcionario,
-        ferias=ferias,
+        dias=ferias.dias,
         adiantamento_decimo=getattr(ferias, "adiantamento_decimo", False)
     )
 
@@ -68,14 +69,14 @@ def gerar_ferias_pdf(ferias_id):
 
     ferias_calc = calcular_pagamento_ferias(
         funcionario=funcionario,
-        ferias=ferias,
+        dias=ferias.dias,
         adiantamento_decimo=ferias.adiantamento_decimo if hasattr(ferias, "adiantamento_decimo") else False
     )
 
     rendered = render_template(
         "ferias_pdf.html",
         funcionario=funcionario,
-        ferias=ferias,
+        dias=ferias.dias,
         ferias_calc=ferias_calc
     )
 
@@ -99,8 +100,8 @@ def holerite(user_id=None):
 
     registros = Ponto.query.filter(Ponto.user_id == funcionario.id, Ponto.data >= inicio, Ponto.data <= fim).all()
     
-    jornada_dia = funcionario.empresa.carga_mensal / 22
-    valor_hora = funcionario.salario_mensal / funcionario.empresa.carga_mensal
+    jornada_dia = funcionario.empresa_id.carga_mensal / 22
+    valor_hora = funcionario.salario_mensal / funcionario.empresa_id.carga_mensal
 
     total_horas = extras = dias_trabalhados = 0
 
@@ -139,8 +140,5 @@ def holerite(user_id=None):
                     valor_liquido=liquido,
                     is_admin=is_admin,
                     admin_nome=current_user.nome if is_admin else None)
-    
-    response = make_response(pdf)
-    response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = f'inline; filename=holerite_{funcionario.id}_{mes:02d}.pdf'
-    return response
+
+    return pdf

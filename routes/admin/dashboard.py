@@ -9,7 +9,7 @@ from . import admin_bp
 @login_required
 @admin_required
 def dashboard():
-    funcionarios = User.query.filter_by(empresa_id=current_user.empresa_id, tipo="funcionario").all()
+    funcionarios = User.query.filter_by(empresa_id=current_user.empresa_id, tipo="funcionario", ativo=True).all()
     total_funcionarios = len(funcionarios)
 
     registros = Ponto.query.join(User).filter(User.empresa_id == current_user.empresa_id).all()
@@ -22,8 +22,10 @@ def dashboard():
         marcacoes = Marcacao.query.filter_by(ponto_id=r.id).order_by(Marcacao.hora).all()
         if len(marcacoes) >= 2:
             entrada = datetime.combine(r.data, marcacoes[0].hora)
+            saida_almoco = datetime.combine(r.data, marcacoes[1].hora)
+            retorno_almoco = datetime.combine(r.data, marcacoes[2].hora) if len(marcacoes) > 2 else None
             saida = datetime.combine(r.data, marcacoes[-1].hora)
-            total_horas += (saida - entrada)        
+            total_horas += (saida - entrada - (retorno_almoco - saida_almoco if retorno_almoco else timedelta()))        
         elif len(marcacoes) == 1:
             pendentes.append(r) 
             

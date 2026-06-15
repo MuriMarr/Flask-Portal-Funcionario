@@ -38,15 +38,15 @@ def registrar_ponto():
 
 @admin_bp.route('/banco_horas/mensal/<int:usuario_id>')
 @login_required
-def banco_horas_mensal(usuario_id):
-    funcionario = User.query.get_or_404(usuario_id)
+def banco_horas_mensal(user_id):
+    funcionario = User.query.get_or_404(user_id)
 
     hoje = datetime.today().date()
     inicio_mes = date(hoje.year, hoje.month, 1)
 
     pontos = (
         Ponto.query
-        .filter(Ponto.usuario_id == usuario_id, Ponto.data >= inicio_mes)
+        .filter(Ponto.user_id == user_id, Ponto.data >= inicio_mes)
         .order_by(Ponto.data.asc())
         .all()
     )
@@ -58,7 +58,7 @@ def banco_horas_mensal(usuario_id):
     resultados = []
 
     for ponto in pontos:
-        resultado = calcular_horas_ponto(ponto, carga_diaria=timedelta(hours=8))
+        resultado = calcular_horas_ponto(ponto, carga=timedelta(hours=8))
 
         saldo_total += resultado["saldo"]
         extras_total += resultado["extras"]
@@ -83,12 +83,12 @@ def banco_horas_mensal(usuario_id):
 
 @admin_bp.route('/banco_horas/acumulado/<int:usuario_id>')
 @login_required
-def banco_horas_acumulado(usuario_id):
-    funcionario = User.query.get_or_404(usuario_id)
+def banco_horas_acumulado(user_id):
+    funcionario = User.query.get_or_404(user_id)
 
     pontos = (
         Ponto.query
-        .filter(Ponto.usuario_id == usuario_id)
+        .filter(Ponto.user_id == user_id)
         .order_by(Ponto.data.asc())
         .all()
     )
@@ -100,7 +100,7 @@ def banco_horas_acumulado(usuario_id):
     resultados = []
 
     for ponto in pontos:
-        resultado = calcular_horas_ponto(ponto, carga_diaria=timedelta(hours=8))
+        resultado = calcular_horas_ponto(ponto, carga=timedelta(hours=8))
 
         saldo_total += resultado["saldo"]
         extras_total += resultado["extras"]
@@ -135,7 +135,7 @@ def historico_funcionario(id):
     
     registros = Ponto.query.filter(Ponto.user_id == id, Ponto.data >= inicio).order_by(Ponto.data.asc()).all()
 
-    jornada_padrao = timedelta(hours=funcionario.empresa.carga_mensal / 22 / 5)
+    jornada_padrao = timedelta(hours=funcionario.empresa_trabalho.carga_mensal / 22 / 5)
 
     saldo_total = timedelta()
     extras_total = timedelta()
@@ -147,7 +147,7 @@ def historico_funcionario(id):
         resultado = calcular_horas_ponto(r, carga=jornada_padrao)
 
         if len(marcacoes) >= 2:
-            saldo_total += resultado["saldo"]
+            saldo_total += resultado["total_trabalhado"] - jornada_padrao
             extras_total += resultado["extras"]
             deficit_total += resultado["deficit"]
 
@@ -155,10 +155,10 @@ def historico_funcionario(id):
             'data': r.data,
             'entrada': r.marcacoes[0].hora.strftime("%H:%M") if len(marcacoes) > 0 else None,
             'saida_almoco': r.marcacoes[1].hora.strftime("%H:%M") if len(marcacoes) > 1 else None,
-            'retorno_almoco': r.marcacoes[2].hora.strftime("%H:%M") if len(marcacoes) > 2 else None,
-            'saida': r.marcacoes[-1].hora.strftime("%H:%M") if len(marcacoes) > 3 else None,
+            'retorno_almoco': r.marcacoes[-1].hora.strftime("%H:%M") if len(marcacoes) > 2 else None,
+            'saida': r.marcacoes[2].hora.strftime("%H:%M") if len(marcacoes) > 3 else None,
             'horas_trabalhadas': resultado["total_trabalhado"],
-            'saldo': resultado["saldo"], 
+            'saldo': resultado["total_trabalhado"] - jornada_padrao,
             'extras': resultado["extras"],
             'deficit': resultado["deficit"]
         })

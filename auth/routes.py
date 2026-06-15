@@ -10,8 +10,12 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        email = request.form.get("email")
-        senha = request.form.get("senha")
+        email = request.form.get("email", "").strip()
+        senha = request.form.get("senha", "").strip()
+
+        if not email or not senha:
+            flash("Email e senha são obrigatórios.", "warning")
+            return render_template("login.html")
 
         user = User.query.filter_by(email=email).first()
 
@@ -27,6 +31,8 @@ def login():
                 return redirect(url_for("funcionarios.dashboard"))
         else:
             flash("Usuário desconhecido. Contate o suporte.", "danger")
+
+        return render_template("login.html")
 
     return render_template("login.html")
 
@@ -60,9 +66,9 @@ def refresh_session():
 def registrar_funcionario():
     if request.method == 'POST':
         nome = request.form.get('nome', '').strip()
+        data_nascimento = request.form.get('data_nascimento', None)
         email = request.form.get('email', '').strip().lower()
         senha = request.form.get('senha', '')
-        data_nascimento = request.form.get('data_nascimento', None)
         cpf = request.form.get('cpf', None)
         cargo = request.form.get('cargo', None)
         try:
@@ -87,7 +93,24 @@ def registrar_funcionario():
             flash('Email já cadastrado.', 'warning')
             return redirect(url_for('registrar_funcionario'))
         
-        novo_user = User(nome=nome, data_nascimento=datetime.strptime(data_nascimento, '%Y-%m-%d'), cpf=cpf, cargo=cargo, salario_mensal=salario_mensal, email=email, senha=generate_password_hash(senha), tipo=tipo, rua=rua, telefone=telefone, cidade_uf=cidade_uf, complemento=complemento, bairro=bairro, numero=numero, data_admissao=datetime.strptime(data_admissao, "%Y-%m-%d").date() if data_admissao else date.today(), ativo=ativo)
+        novo_user = User(
+            nome=nome,
+            data_nascimento=datetime.strptime(data_nascimento, '%Y-%m-%d').date(),
+            cpf=cpf,
+            cargo=cargo,
+            salario_mensal=salario_mensal,
+            email=email,
+            senha=generate_password_hash(senha),
+            tipo=tipo,
+            rua=rua,
+            telefone=telefone,
+            cidade_uf=cidade_uf,
+            complemento=complemento,
+            bairro=bairro,
+            numero=numero,
+            data_admissao=datetime.strptime(data_admissao, "%Y-%m-%d").date() if data_admissao else date.today(),
+            ativo=ativo)
+        
         db.session.add(novo_user)
         db.session.commit()
         

@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="container text-center mt-4">
-    <h2 class="mb-3">Painel do Funcionário</h2>
+    <h1 class="mb-3">Painel do Funcionário</h1>
     <p>Bem-vindo, <strong>{{ current_user.nome }}</strong>!</p>
 
     <div class="row mt-4">
@@ -28,7 +28,7 @@
         <div class="col-md-3">
             <div class="metric-card info">
                 <h5>Próximo Pagamento</h5>
-                <h3>R$ {{ "{:,.2f}".format(proximo_pagamento) }}</h3>
+                <h3>R$ {{ "%.2f"|format(proximo_pagamento) }}</h3>
             </div>
         </div>
     </div>
