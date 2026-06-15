@@ -1,13 +1,11 @@
-.env
-.env.local
-__pycache__/
 *.pyc
 *.pyo
 *.egg-info/
-.vscode/
 .idea/
-venv/
-env/
+.venv/
+.vscode/
+documentacoes/
+.env
 static/uploads/*
 !static/uploads/.gitkeep
 *.db
