@@ -47,31 +47,31 @@ def novo_funcionario():
             try:
                 salario = float(raw_salario)
             except ValueError:
-                flash("valor de salário inválido, Corrija e tente novamente", "danger")
+                flash("Valor de salário inválido. Corrija e tente novamente", "danger")
                 return redirect(url_for("admin.novo_funcionario"))
-            else:
-                flash("Salário não informado.", "warning")
+        else:
+            flash("Salário não informado.", "warning")
 
-        funcionario = User(
-            nome = dados['nome'],
-            data_nascimento = dados.get('data_nascimento'),
-            cpf = dados['cpf'],
-            telefone = dados['telefone'] or None,
-            rua = dados['rua'],
-            numero = dados['numero'],
-            complemento = dados['complemento'],
-            bairro = dados['bairro'],
-            cidade = dados.get('cidade'),
-            uf = dados['uf'],
-            cargo = dados['cargo'],
-            salario_mensal = salario,
-            email = dados['email'],
-            senha = generate_password_hash(dados['senha'], method='pbkdf2:sha256'),
-            data_admissao = datetime.now(timezone.utc),
-            tipo = "funcionario",
-            empresa_id = current_user.empresa_id,
-            ativo = True
-        )
+        funcionario = User()
+        funcionario.nome = nome
+        funcionario.data_nascimento = dados.get('data_nascimento')
+        funcionario.cpf = cpf
+        funcionario.telefone = dados.get('telefone') or None
+        funcionario.rua = dados.get('rua')
+        funcionario.numero = dados.get('numero')
+        funcionario.complemento = dados.get('complemento')
+        funcionario.bairro = dados.get('bairro')
+        funcionario.cidade = dados.get('cidade')
+        funcionario.uf = dados.get('uf')
+        funcionario.cargo = dados.get('cargo')
+        funcionario.salario_mensal = salario
+        funcionario.email = dados.get('email')
+        funcionario.senha = generate_password_hash(senha, method='pbkdf2:sha256')
+        funcionario.data_admissao = datetime.now(timezone.utc)
+        funcionario.tipo = "funcionario"
+        funcionario.empresa_id = current_user.empresa_id
+        funcionario.ativo = True
+
         db.session.add(funcionario)
         db.session.commit()
         flash('Funcionário cadastrado com sucesso!', 'success')

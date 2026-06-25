@@ -22,7 +22,7 @@ def login():
         if user and user.check_senha(senha):
             login_user(user, remember=False)
             flash("Login realizado com sucesso", "success")
-
+            
             if user.tipo == "superadmin": 
                 return redirect(url_for("superadmin.dashboard"))
             elif user.tipo == "admin":
@@ -66,36 +66,51 @@ def refresh_session():
 def registrar_funcionario():
     if request.method == 'POST':
         nome = request.form.get('nome', '').strip()
-        data_nascimento = request.form.get('data_nascimento', None)
+        data_nascimento = request.form.get('data_nascimento', '').strip()
         email = request.form.get('email', '').strip().lower()
         senha = request.form.get('senha', '')
-        cpf = request.form.get('cpf', None)
-        cargo = request.form.get('cargo', None)
+        cpf = request.form.get('cpf', '').strip()
+        cargo = request.form.get('cargo', '').strip()
         try:
-            salario_mensal = float(request.form['salario_mensal'] or 0)
+            salario_mensal = float(request.form.get('salario_mensal', 0) or 0)
         except ValueError:
             salario_mensal = 1940.00
-        telefone = request.form.get('telefone', '')
-        rua = request.form.get('rua', '')
+        telefone = request.form.get('telefone', '').strip()
+        rua = request.form.get('rua', '').strip()
         numero = request.form.get('numero', '').strip()
         bairro = request.form.get('bairro', '').strip()
         complemento = request.form.get('complemento', '').strip()
         cidade_uf = request.form.get('cidade_uf', '').strip()
         tipo = request.form.get('tipo', 'funcionario')
-        data_admissao = request.form.get('data_admissao', '')
+        data_admissao = request.form.get('data_admissao', '').strip()
         ativo = True
 
-        if not nome or not email or not senha:
-            flash('Preencha todos os campos obrigatórios!' 'warning')
-            return redirect(url_for('funcionarios.registrar_funcionario'))
+        if not nome or not email or not senha or not data_nascimento:
+            flash('Preencha todos os campos obrigatórios!', 'warning')
+            return redirect(url_for('auth.registrar_funcionario'))
         
         if User.query.filter_by(email=email).first():
             flash('Email já cadastrado.', 'warning')
-            return redirect(url_for('registrar_funcionario'))
+            return redirect(url_for('auth.registrar_funcionario'))
+
+        try:
+            data_nascimento_parsed = datetime.strptime(data_nascimento, '%Y-%m-%d').date()
+        except (ValueError, TypeError):
+            flash('Data de nascimento inválida.', 'warning')
+            return redirect(url_for('auth.registrar_funcionario'))
+
+        if data_admissao:
+            try:
+                data_admissao_parsed = datetime.strptime(data_admissao, '%Y-%m-%d').date()
+            except ValueError:
+                flash('Data de admissão inválida.', 'warning')
+                return redirect(url_for('auth.registrar_funcionario'))
+        else:
+            data_admissao_parsed = date.today()
         
         novo_user = User(
             nome=nome,
-            data_nascimento=datetime.strptime(data_nascimento, '%Y-%m-%d').date(),
+            data_nascimento=data_nascimento_parsed,
             cpf=cpf,
             cargo=cargo,
             salario_mensal=salario_mensal,
@@ -108,8 +123,8 @@ def registrar_funcionario():
             complemento=complemento,
             bairro=bairro,
             numero=numero,
-            data_admissao=datetime.strptime(data_admissao, "%Y-%m-%d").date() if data_admissao else date.today(),
-            ativo=ativo)
+            data_admissao=data_admissao_parsed,
+            ativo=ativo) 
         
         db.session.add(novo_user)
         db.session.commit()

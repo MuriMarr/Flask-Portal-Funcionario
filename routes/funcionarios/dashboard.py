@@ -1,7 +1,7 @@
 from flask import render_template
 from flask_login import current_user, login_required
-from models import Ponto, Marcacao
-from utils import calcular_horas_ponto
+from models import Ponto, Marcacao, Empresa
+from utils import calcular_horas_ponto, format_timedelta
 from collections import defaultdict
 from . import funcionarios_bp
 
@@ -18,7 +18,7 @@ def dashboard():
         [calcular_horas_ponto(r)["extras"].seconds / 3600 for r in registros], 0
     )
 
-    banco_horas = total_trabalhado + total_extras - (current_user.empresa.carga_mensal or 220)
+    banco_horas = total_trabalhado + total_extras - (current_user.empresa_trabalho.carga_mensal or 220)
     proximo_pagamento = current_user.salario_mensal
 
     horas_semanais = defaultdict(float)
@@ -42,12 +42,12 @@ def dashboard():
         horarios = "-".join([m.hora.strftime("%Hh%M") for m in marcacoes])
 
         historico.append({
-            "data": r.data,
-            "horarios": horarios,
-            "total_trabalhado": resultado["total_trabalhado"],
-            "saldo": resultado["saldo"],
-            "extras": resultado["extras"],
-            "deficit": resultado["deficit"]
+            'data': r.data,
+            'horarios': horarios,
+            'total_trabalhado': format_timedelta(resultado['total_trabalhado']),
+            'saldo': format_timedelta(resultado['saldo']),
+            'extras': format_timedelta(resultado['extras']),
+            'deficit': format_timedelta(resultado['deficit'])
         })
 
     return render_template(

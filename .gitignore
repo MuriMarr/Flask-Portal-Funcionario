@@ -1,9 +1,10 @@
+*__pycache__
 *.pyc
 *.pyo
 *.egg-info/
+*.vscode
 .idea/
 .venv/
-.vscode/
 documentacoes/
 .env
 static/uploads/*

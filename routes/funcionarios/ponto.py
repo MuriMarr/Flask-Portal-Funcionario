@@ -3,7 +3,7 @@ from extensions import db
 from flask import flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 from models import Ferias, Ponto, Marcacao
-from utils import calcular_horas_ponto
+from utils import calcular_horas_ponto, format_timedelta
 from . import funcionarios_bp
 
 @funcionarios_bp.route('/registrar_ponto', methods=["GET", "POST"])
@@ -63,11 +63,11 @@ def historico():
 
     registros = Ponto.query.filter(Ponto.user_id == current_user.id, Ponto.data >= inicio).order_by(Ponto.data.asc()).all()
     
-    jornada_padrao = timedelta(hours=current_user.empresa.carga_mensal / 22 / 5)
+    jornada_padrao = timedelta(hours=current_user.empresa_trabalho.carga_mensal / 22)  # Carga diária padrão (220 horas mensais / 22 dias úteis)
 
-    saldo_total = timedelta()
-    extras_total = timedelta()
-    deficit_total = timedelta()
+    saldo = timedelta()
+    extras = timedelta()
+    deficit = timedelta()
     lista = []
 
     for r in registros:
@@ -75,27 +75,27 @@ def historico():
         resultado = calcular_horas_ponto(r, carga=jornada_padrao)
 
         if len(marcacoes) >= 2:
-            saldo_total += resultado["saldo"]
-            extras_total += resultado["extras"]
-            deficit_total += resultado["deficit"] 
+            saldo += resultado["saldo"]
+            extras += resultado["extras"]
+            deficit += resultado["deficit"] 
 
         lista.append({
             'data': r.data,
             'entrada': r.marcacoes[0].hora.strftime("%H:%M") if len(marcacoes) > 0 else None,
             'saida_almoco': r.marcacoes[1].hora.strftime("%H:%M") if len(marcacoes) > 1 else None,
             'retorno_almoco': r.marcacoes[2].hora.strftime("%H:%M") if len(marcacoes) > 2 else None,
-            'saida': r.marcacoes[-1].hora.strftime("%H:%M") if len(marcacoes) > 3 else None,
-            'horas_trabalhadas': resultado['total_trabalhado'],
-            'saldo': resultado['saldo'],
-            'extras': resultado['extras'],
-            'deficit': resultado['deficit']
+            'saida': r.marcacoes[3].hora.strftime("%H:%M") if len(marcacoes) > 3 else None,
+            'horas_trabalhadas': format_timedelta(resultado['total_trabalhado']),
+            'saldo': format_timedelta(resultado['saldo']),
+            'extras': format_timedelta(resultado['extras']),
+            'deficit': format_timedelta(resultado['deficit'])
         })
 
     return render_template(
         'funcionarios/historico.html',
         registros=lista,
-        saldo_total=saldo_total,
-        extras_total=extras_total,
-        deficit_total=deficit_total,
+        saldo_total=saldo,
+        extras_total=extras,
+        deficit_total=deficit,
         mes_atual=f"{ano}-{mes:02d}"
         )

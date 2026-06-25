@@ -31,22 +31,22 @@ def month_range(ano: int, mes: int):
     return primeiro, ultimo
 
 # Ações de log
-def log_action(user_id, acao):
-    novo_log = Log(usuario=user_id, acao=acao)
+def log_action(user, acao):
+    novo_log = Log(user=user, acao=acao) # type: ignore
     db.session.add(novo_log)
     db.session.commit()
 
-def to_time(d, h):
-    if not h:
+def to_time(data, hora):
+    if not hora:
         return None
-    if isinstance(h, str):
+    if isinstance(hora, str):
         try:
-            h_time = datetime.strptime(h, "%H:%M:%S").time()
+            h_time = datetime.strptime(hora, "%H:%M:%S").time()
         except ValueError:
             return None
     else:
-        h_time = h
-    return datetime.combine(d if isinstance(d, date) else date.today(), h_time)
+        h_time = hora
+    return datetime.combine(data if isinstance(data, date) else date.today(), h_time)
 
 
 # Funções de validação e formatação
@@ -110,7 +110,7 @@ def calcular_trct(funcionario, data_demissao):
     meses_trabalhados = (demissao.year - admissao.year) * 12 + (demissao.month - admissao.month)
 
     # Dias trabalhados no mês da demissão
-    dias_no_mes = calendar.monthrange(demissao.year, demissao.month)[1]
+    dias_no_mes = monthrange(demissao.year, demissao.month)[1]
     dias_trabalhados = (demissao - max(admissao, date(demissao.year, demissao.month, 1))).days + 1
 
     # Se não houve meses nem dias de trabalho, retorna TRCT zerado
@@ -241,41 +241,57 @@ def calcular_horas_ponto(ponto, carga=None):
     from models import Marcacao
     
     if carga is None:
-        carga = timedelta(hours=8)
+        carga = timedelta(hours=current_user.empresa_trabalho.carga_mensal / 22)
     
     marcacoes = Marcacao.query.filter_by(ponto_id=ponto.id)\
         .order_by(Marcacao.hora).all()
     
+    # Se tem menos de 2 marcações, dia incompleto
     if len(marcacoes) < 2:
         return {
             "total_trabalhado": timedelta(),
+            "saldo": -carga,
             "extras": timedelta(),
             "deficit": carga
         }
     
     entrada = to_time(ponto.data, marcacoes[0].hora)
-    saida = to_time(ponto.data, marcacoes[-1].hora)
-    
     pausa_almoco = timedelta()
-    if len(marcacoes) > 2:
+    
+    # Se tem 4 ou mais marcações = dia com almoço
+    if len(marcacoes) >= 4:
         saida_almoco = to_time(ponto.data, marcacoes[1].hora)
         retorno_almoco = to_time(ponto.data, marcacoes[2].hora)
-        pausa_almoco = retorno_almoco - saida_almoco
+        saida_final = to_time(ponto.data, marcacoes[3].hora)
+        pausa_almoco = retorno_almoco - saida_almoco # pyright: ignore[reportOperatorIssue]
+    else:
+        # Se tem 2 ou 3 marcações, pega última como saída
+        saida_final = to_time(ponto.data, marcacoes[-1].hora)
     
-    total_trabalhado = saida - entrada - pausa_almoco
+    # Calcula total trabalhado (entrada até saída menos pausa)
+    total_trabalhado = saida_final - entrada - pausa_almoco # pyright: ignore[reportOperatorIssue]
     
     if total_trabalhado.total_seconds() < 0:
         total_trabalhado = timedelta()
     
-    if total_trabalhado > carga:
-        extras = total_trabalhado - carga
-        deficit = timedelta()
+    # Calcula saldo (pode ser positivo ou negativo)
+    saldo = total_trabalhado - carga
+    
+    # Calcula extras (máximo 2 horas)
+    if saldo > timedelta():
+        extras = min(saldo, timedelta(hours=2))
     else:
         extras = timedelta()
-        deficit = carga - total_trabalhado
+    
+    # Calcula deficit (quando não atingiu a carga)
+    if saldo < timedelta():
+        deficit = -saldo  # Transforma em positivo (valor absoluto)
+    else:
+        deficit = timedelta()
     
     return {
         "total_trabalhado": total_trabalhado,
+        "saldo": saldo,
         "extras": extras,
         "deficit": deficit
     }

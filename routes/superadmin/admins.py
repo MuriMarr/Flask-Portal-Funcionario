@@ -1,5 +1,5 @@
 from flask import render_template, request, redirect, url_for, flash
-from flask_login import login_required
+from flask_login import current_user, login_required
 from models import User, Empresa
 from extensions import db
 from utils import superadmin_required
@@ -10,7 +10,8 @@ from . import superadmin_bp
 @superadmin_required
 def listar_admins():
     admins = User.query.filter_by(tipo="admin").all()
-    return render_template("superadmin/listar_admins.html", admins=admins)
+    empresa = Empresa.query.get(current_user.empresa_id) if current_user.empresa_id else None
+    return render_template("superadmin/listar_admins.html", admins=admins, empresa=empresa)
 
 @superadmin_bp.route("/admins/novo", methods=["GET", "POST"])
 @login_required

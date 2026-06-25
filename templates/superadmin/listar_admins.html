@@ -9,9 +9,9 @@
         <div class="col-md-4 mb-3">
             <div class="card company-card">
                 <div class="card-body">
-                    <h5>{{ admin.nome }}</h5>
-                    <p class="muted">{{ admin.email }}</p>
-                    <p class="muted">Empresa: {{ admin.empresa.razao_social if admin.empresa else '-' }}</p>
+                    <h5>Nome: {{ admin.nome }}</h5>
+                    <p class="muted">E-mail: {{ admin.email }}</p>
+                    <p class="muted">Empresa: {{ admin.empresa_id }}</p>
                     <div class="mt-3">
                         <a href="{{ url_for('superadmin.editar_admin', id=admin.id) }}" class="btn btn-sm btn-primary">Editar</a>
                         <form method="POST" action="{{ url_for('superadmin.excluir_admin', id=admin.id) }}" style="display:inline;">

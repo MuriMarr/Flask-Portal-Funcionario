@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const ctxExtras = document.getElementById("graficoExtras");
 
     new Chart(ctxHoras, {
-        type: "bar",
+        type: "line",
         data: {
             labels: data.semanas,
             datasets: [{
@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     new Chart(ctxExtras, {
-        type: "bar",
+        type: "line",
         data: {
             labels: data.semanas,
             datasets: [{

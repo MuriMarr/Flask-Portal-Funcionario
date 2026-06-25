@@ -3,7 +3,7 @@ from extensions import db
 from flask import flash, redirect, url_for, render_template
 from flask_login import current_user, login_required
 from models import User, Ponto, Marcacao
-from utils import admin_required, calcular_horas_ponto
+from utils import admin_required, calcular_horas_ponto, format_timedelta
 from . import admin_bp
 
 # Registro de ponto para administradores
@@ -17,7 +17,7 @@ def registrar_ponto():
 
     # Verificação de entradas ou saídas existentes
     if not ponto:
-        ponto = Ponto(user_id=current_user.id, data=hoje)
+        ponto = Ponto(user_id=current_user.id, data=hoje) # type: ignore
         db.session.add(ponto)
         db.session.commit()
 
@@ -27,7 +27,7 @@ def registrar_ponto():
 
     if qtd_pontos < len(tipos):
         tipo = tipos[qtd_pontos]
-        marcacao = Marcacao(data=hoje, hora=agora, tipo=tipo, ponto=ponto)
+        marcacao = Marcacao(data=hoje, hora=agora, tipo=tipo, ponto=ponto) # type: ignore
         db.session.add(marcacao)
         db.session.commit()
         flash(f"{tipo.replace('_',' ').title()} registrada com sucesso!", "success")
@@ -66,19 +66,19 @@ def banco_horas_mensal(user_id):
 
         resultados.append({
             "data": ponto.data,
-            "total_trabalhado": resultado["total_trabalhado"],
-            "saldo": resultado["saldo"],
-            "extras": resultado["extras"],
-            "deficit": resultado["deficit"],
+            "total_trabalhado": format_timedelta(resultado["total_trabalhado"]),
+            "saldo": format_timedelta(resultado["saldo"]),
+            "extras": format_timedelta(resultado["extras"]),
+            "deficit": format_timedelta(resultado["deficit"]),
         })
 
     return render_template(
         "admin/banco_horas_mensal.html",
         funcionario=funcionario,
         resultados=resultados,
-        saldo_total=saldo_total,
-        extras_total=extras_total,
-        deficit_total=deficit_total
+        saldo_total=format_timedelta(saldo_total),
+        extras_total=format_timedelta(extras_total),
+        deficit_total=format_timedelta(deficit_total)
     )
 
 @admin_bp.route('/banco_horas/acumulado/<int:usuario_id>')
@@ -108,19 +108,19 @@ def banco_horas_acumulado(user_id):
 
         resultados.append({
             "data": ponto.data,
-            "total_trabalhado": resultado["total_trabalhado"],
-            "saldo": resultado["saldo"],
-            "extras": resultado["extras"],
-            "deficit": resultado["deficit"],
+            "total_trabalhado": format_timedelta(resultado["total_trabalhado"]),
+            "saldo": format_timedelta(resultado["saldo"]),
+            "extras": format_timedelta(resultado["extras"]),
+            "deficit": format_timedelta(resultado["deficit"]),
         })
 
     return render_template(
         "admin/banco_horas_acumulado.html",
         funcionario=funcionario,
         resultados=resultados,
-        saldo_total=saldo_total,
-        extras_total=extras_total,
-        deficit_total=deficit_total
+        saldo_total=format_timedelta(saldo_total),
+        extras_total=format_timedelta(extras_total),
+        deficit_total=format_timedelta(deficit_total)
     )
 
 @admin_bp.route('/funcionario/<int:id>/historico')
@@ -135,7 +135,7 @@ def historico_funcionario(id):
     
     registros = Ponto.query.filter(Ponto.user_id == id, Ponto.data >= inicio).order_by(Ponto.data.asc()).all()
 
-    jornada_padrao = timedelta(hours=funcionario.empresa_trabalho.carga_mensal / 22 / 5)
+    jornada_padrao = timedelta(hours=funcionario.empresa_trabalho.carga_mensal / 22)
 
     saldo_total = timedelta()
     extras_total = timedelta()
@@ -155,12 +155,12 @@ def historico_funcionario(id):
             'data': r.data,
             'entrada': r.marcacoes[0].hora.strftime("%H:%M") if len(marcacoes) > 0 else None,
             'saida_almoco': r.marcacoes[1].hora.strftime("%H:%M") if len(marcacoes) > 1 else None,
-            'retorno_almoco': r.marcacoes[-1].hora.strftime("%H:%M") if len(marcacoes) > 2 else None,
-            'saida': r.marcacoes[2].hora.strftime("%H:%M") if len(marcacoes) > 3 else None,
-            'horas_trabalhadas': resultado["total_trabalhado"],
-            'saldo': resultado["total_trabalhado"] - jornada_padrao,
-            'extras': resultado["extras"],
-            'deficit': resultado["deficit"]
+            'retorno_almoco': r.marcacoes[2].hora.strftime("%H:%M") if len(marcacoes) > 2 else None,
+            'saida': r.marcacoes[3].hora.strftime("%H:%M") if len(marcacoes) > 3 else None,
+            'horas_trabalhadas': format_timedelta(resultado["total_trabalhado"]),
+            'saldo': format_timedelta(resultado["saldo"]),
+            'extras': format_timedelta(resultado["extras"]),
+            'deficit': format_timedelta(resultado["deficit"])
         })
 
-    return render_template('admin/historico_funcionario.html', funcionario=funcionario.nome, registros=lista, saldo_total=saldo_total, extras_total=extras_total, deficit_total=deficit_total, mes_atual=f"{ano}-{mes:02d}")
+    return render_template('admin/historico_funcionario.html', funcionario=funcionario.nome, registros=lista, saldo_total=format_timedelta(saldo_total), extras_total=format_timedelta(extras_total), deficit_total=format_timedelta(deficit_total), mes_atual=f"{ano}-{mes:02d}")

@@ -2,7 +2,7 @@ from flask import render_template, request, make_response
 from datetime import datetime, timedelta
 from sqlalchemy import extract
 from models import User, Ponto
-from utils import calcular_horas_ponto
+from utils import calcular_horas_ponto, format_timedelta
 from routes.common.pdf_utils import gerar_pdf
 from flask_login import login_required
 from . import relatorios_bp
@@ -13,7 +13,7 @@ def relatorio_jornada():
     mes = request.args.get("mes", datetime.now().strftime("%Y-%m"))
     ano, mes = map(int, mes.split("-"))
 
-    funcionarios = User.query.filter_by(tipo="funcionario").all()
+    funcionarios = User.query.filter(User.tipo.in_(["funcionario", "admin"])).all()
     relatorio = []
 
     for func in funcionarios:
@@ -36,10 +36,10 @@ def relatorio_jornada():
 
         relatorio.append({
             "funcionario": func.nome,
-            "total_trabalhado": total_trabalhado,
-            "total_extras": total_extras,
-            "total_deficit": total_deficit,
-            "banco": banco
+            "total_trabalhado": format_timedelta(total_trabalhado),
+            "total_extras": format_timedelta(total_extras),
+            "total_deficit": format_timedelta(total_deficit),
+            "banco": format_timedelta(banco)
         })
 
     return render_template("relatorios/relatorio_jornada.html", relatorio=relatorio, mes=f"{ano}-{mes:02d}")
@@ -73,10 +73,10 @@ def relatorio_jornada_pdf():
 
         relatorio.append({
             "funcionario": func.nome,
-            "total_trabalhado": total_trabalhado,
-            "total_extras": total_extras,
-            "total_deficit": total_deficit,
-            "banco": banco
+            "total_trabalhado": format_timedelta(total_trabalhado),
+            "total_extras": format_timedelta(total_extras),
+            "total_deficit": format_timedelta(total_deficit),
+            "banco": format_timedelta(banco)
         })
 
     pdf = gerar_pdf("relatorios/relatorio_jornada_pdf.html", relatorio=relatorio, mes=f"{ano}-{mes:02d}")

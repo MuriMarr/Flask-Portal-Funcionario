@@ -5,12 +5,10 @@ from flask import Flask, flash, redirect, render_template, url_for, session
 from config import Config
 from extensions import db, migrate, login_manager
 from models import User
-from dotenv import find_dotenv, load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from utils import format_timedelta
 
-find_dotenv()
-
-load_dotenv()
+load_dotenv(find_dotenv(usecwd=True))
 CHAVE_SECRETA_ADMIN = os.environ.get('CHAVE_SECRETA_ADMIN')
 
 if not CHAVE_SECRETA_ADMIN:

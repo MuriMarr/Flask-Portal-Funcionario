@@ -1,5 +1,6 @@
 from calendar import monthrange
-from datetime import datetime
+from datetime import datetime, timedelta
+from decimal import Decimal
 from flask import render_template, make_response
 from models import User, Ponto, Marcacao, Ferias
 from flask_login import login_required, current_user
@@ -90,18 +91,22 @@ def gerar_ferias_pdf(ferias_id):
 @admin_bp.route('/holerite/<int:user_id>')
 @funcionarios_bp.route('/holerite')
 @login_required
-def holerite(user_id=None):
+def gerar_holerite(user_id):
     is_admin = current_user.tipo in ['admin', 'superadmin']
-    funcionario = User.query.get_or_404(user_id)
+    if user_id:
+        funcionario = User.query.get_or_404(user_id)
+    else:
+        funcionario = current_user
 
     ano, mes = datetime.now().year, datetime.now().month
     inicio = datetime(ano, mes, 1).date()
     fim = datetime(ano, mes, monthrange(ano, mes)[1]).date()
 
-    registros = Ponto.query.filter(Ponto.user_id == funcionario.id, Ponto.data >= inicio, Ponto.data <= fim).all()
+    registros = Ponto.query.filter(Ponto.user_id == current_user.id, Ponto.data >= inicio, Ponto.data <= fim).all()
     
-    jornada_dia = funcionario.empresa_id.carga_mensal / 22
-    valor_hora = funcionario.salario_mensal / funcionario.empresa_id.carga_mensal
+    empresa = funcionario.empresa_trabalho or funcionario.empresas_administradas.first()
+    jornada_dia = empresa.carga_mensal / 22
+    valor_hora = funcionario.salario_mensal / empresa.carga_mensal
 
     total_horas = extras = dias_trabalhados = 0
 
@@ -115,8 +120,8 @@ def holerite(user_id=None):
             if horas > jornada_dia:
                 extras += (horas - jornada_dia)
 
-    valor_base = round(total_horas * valor_hora, 2)
-    valor_extras = round(extras * valor_hora * 1.5, 2)
+    valor_base = round(Decimal(str(total_horas)) * valor_hora, 2) 
+    valor_extras = round(Decimal(str(extras)) * valor_hora * ('1.5'), 2)
     bruto = valor_base + valor_extras
 
     desconto_inss = round(bruto * 0.08, 2)
@@ -126,7 +131,7 @@ def holerite(user_id=None):
     
     pdf = gerar_pdf("documentos/holerite_pdf.html",
                     funcionario=funcionario,
-                    holerite=holerite,
+                    holerite=gerar_holerite,
                     mes=f"{ano}-{mes:02d}",
                     dias=dias_trabalhados,
                     horas=round(total_horas, 2),
